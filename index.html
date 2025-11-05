@@ -5,120 +5,408 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFT Casino</title>
     <style>
-        body {
-            background: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #00cc66;
+            --secondary: #1a1a1a;
+            --accent: #00ff00;
+            --text: #ffffff;
+            --border: #333333;
+            --bg: #000000;
+            --danger: #cc0000;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
+
         .header {
             padding: 15px;
             text-align: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border);
+            background: var(--secondary);
         }
-        .graph-container {
+
+        .header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .balance-display {
+            font-size: 18px;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        .main-content {
             flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section {
+            background: var(--secondary);
+            border-radius: 10px;
+            padding: 15px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Слоты */
+        .slots-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
-            margin: 10px;
-            border-radius: 10px;
-            position: relative;
+            height: 150px;
+            margin: 20px 0;
+            gap: 10px;
         }
-        .graph {
-            width: 90%;
-            height: 80%;
+
+        .slot {
+            width: 80px;
+            height: 80px;
             background: #222;
             border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border: 2px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slot-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .slot-spinning .slot-image {
+            animation: spinSlot 0.5s infinite linear;
+        }
+
+        @keyframes spinSlot {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        /* Краш */
+        .crash-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .crash-graph {
+            height: 150px;
+            background: #222;
+            border-radius: 10px;
+            margin: 10px 0;
             position: relative;
             overflow: hidden;
         }
-        .graph-line {
+
+        .crash-line {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             height: 2px;
-            background: #00ff00;
-            /* Анимация линии */
-            animation: graphLine 5s infinite linear;
+            background: var(--accent);
         }
-        @keyframes graphLine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+
+        .crash-multiplier {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 10px 0;
         }
-        .players-list {
-            padding: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #111;
-            margin: 0 10px;
-            border-radius: 10px;
-        }
-        .player-item {
-            padding: 8px;
-            border-bottom: 1px solid #333;
+
+        /* Профиль */
+        .profile-header {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
         }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .profile-rating {
+            color: var(--primary);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-card {
+            background: #222;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .nft-card {
+            background: #222;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .nft-card:hover {
+            transform: scale(1.05);
+        }
+
+        .nft-image {
+            width: 100%;
+            height: 100px;
+            background: #333;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .nft-name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .nft-collection {
+            font-size: 10px;
+            color: #aaa;
+        }
+
         .bet-button {
             display: block;
-            width: 90%;
+            width: 100%;
             padding: 15px;
-            margin: 20px auto;
-            background: #00cc66;
+            margin: 20px 0;
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 50px;
             font-size: 18px;
             cursor: pointer;
+            transition: background 0.3s;
         }
+
+        .bet-button:hover {
+            background: #00aa55;
+        }
+
+        .bet-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .free-mode-btn {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .free-mode-btn:hover {
+            background: #777;
+        }
+
         .footer {
             display: flex;
             justify-content: space-around;
             padding: 10px;
-            background: #111;
-            border-top: 1px solid #333;
+            background: var(--secondary);
+            border-top: 1px solid var(--border);
         }
+
         .footer-btn {
-            font-size: 24px;
-            color: #aaa;
-            text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            padding: 5px;
+            width: 33%;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
         }
+
         .footer-btn.active {
-            color: #00cc66;
+            color: var(--primary);
         }
-        .footer-btn span {
-            font-size: 12px;
+
+        .footer-btn i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #222;
+            text-align: center;
+        }
+
+        .message.success {
+            background: var(--primary);
+            color: white;
+        }
+
+        .message.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Анимация для слотов */
+        @keyframes slotSpin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h2>NFT Casino</h2>
-        <p>Баланс: <span id="balanceDisplay">0</span> звёзд</p>
+        <p class="balance-display">Баланс: <span id="balanceValue">0</span> звёзд</p>
     </div>
 
-    <div class="graph-container">
-        <div class="graph">
-            <div class="graph-line"></div>
+    <div class="main-content">
+        <!-- Слоты -->
+        <div class="section" id="slotsSection">
+            <h3>Слоты</h3>
+            <div class="slots-container">
+                <div class="slot" id="slot1"><img class="slot-image" src="https://via.placeholder.com/80?text=NFT1" alt="NFT"></div>
+                <div class="slot" id="slot2"><img class="slot-image" src="https://via.placeholder.com/80?text=NFT2" alt="NFT"></div>
+                <div class="slot" id="slot3"><img class="slot-image" src="https://via.placeholder.com/80?text=NFT3" alt="NFT"></div>
+            </div>
+            <button class="bet-button" id="spinButton">Крутить (400 звёзд)</button>
+            <button class="free-mode-btn" id="freeSpinButton">Free Spin</button>
         </div>
-    </div>
 
-    <div class="players-list" id="playersList">
-        <!-- Игроки будут добавлены динамически -->
-    </div>
+        <!-- Краш -->
+        <div class="section" id="crashSection">
+            <h3>Краш</h3>
+            <div class="crash-container">
+                <div class="crash-graph">
+                    <div class="crash-line" id="crashLine"></div>
+                </div>
+                <div class="crash-multiplier" id="crashMultiplier">1.00x</div>
+                <button class="bet-button" id="crashBetButton">Сделать ставку</button>
+                <button class="bet-button hidden" id="crashCashoutButton">Вывести</button>
+            </div>
+        </div>
 
-    <button class="bet-button" id="betButton">Сделать ставку (400 звёзд)</button>
+        <!-- Профиль -->
+        <div class="section" id="profileSection">
+            <h3>Профиль</h3>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">👤</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Loading...</div>
+                    <div class="profile-rating" id="profileRating">Рейтинг: 0</div>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBets">0</div>
+                    <div class="stat-label">Ставок</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWithdraws">0</div>
+                    <div class="stat-label">Выводов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalNFTs">0</div>
+                    <div class="stat-label">NFT</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="winRate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+            </div>
+            <h4>Мои NFT</h4>
+            <div class="nft-grid" id="nftGrid">
+                <!-- NFT будут добавлены динамически -->
+            </div>
+        </div>
+
+        <!-- Сообщения -->
+        <div id="messageContainer"></div>
+    </div>
 
     <div class="footer">
         <a href="#" class="footer-btn active" id="tabSlots">
@@ -139,102 +427,273 @@
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-
-        // Установка цвета темы
-        document.body.style.backgroundColor = tg.backgroundColor;
         tg.ready();
 
         // Элементы DOM
-        const balanceDisplay = document.getElementById('balanceDisplay');
-        const playersList = document.getElementById('playersList');
-        const betButton = document.getElementById('betButton');
+        const balanceValue = document.getElementById('balanceValue');
+        const slotsSection = document.getElementById('slotsSection');
+        const crashSection = document.getElementById('crashSection');
+        const profileSection = document.getElementById('profileSection');
         const tabSlots = document.getElementById('tabSlots');
         const tabCrash = document.getElementById('tabCrash');
         const tabProfile = document.getElementById('tabProfile');
+        const spinButton = document.getElementById('spinButton');
+        const freeSpinButton = document.getElementById('freeSpinButton');
+        const slot1 = document.getElementById('slot1');
+        const slot2 = document.getElementById('slot2');
+        const slot3 = document.getElementById('slot3');
+        const crashBetButton = document.getElementById('crashBetButton');
+        const crashCashoutButton = document.getElementById('crashCashoutButton');
+        const crashMultiplier = document.getElementById('crashMultiplier');
+        const crashLine = document.getElementById('crashLine');
+        const profileName = document.getElementById('profileName');
+        const profileRating = document.getElementById('profileRating');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const totalBets = document.getElementById('totalBets');
+        const totalWithdraws = document.getElementById('totalWithdraws');
+        const totalNFTs = document.getElementById('totalNFTs');
+        const winRate = document.getElementById('winRate');
+        const nftGrid = document.getElementById('nftGrid');
+        const messageContainer = document.getElementById('messageContainer');
 
-        // Фиктивные данные для примера
-        let balance = 0;
-        const players = [
-            { name: 'User1', nft: 'NFT #123', coef: 'x2.5' },
-            { name: 'User2', nft: 'NFT #456', coef: 'x1.8' },
-            { name: 'You', nft: 'NFT #789', coef: 'x3.0' }
+        // Глобальные переменные
+        let userData = {};
+        let userBalance = 0;
+        let userNFTs = [];
+        let userStats = { total_bets: 0, total_withdraws: 0, total_nfts: 0, win_rate: 0 };
+        let isCrashGameActive = false;
+        let crashInterval = null;
+        let crashMultiplierValue = 1.00;
+
+        // Иконки NFT (в реальном приложении - URL из базы данных)
+        const nftIcons = [
+            'https://via.placeholder.com/80?text=NFT1',
+            'https://via.placeholder.com/80?text=NFT2',
+            'https://via.placeholder.com/80?text=NFT3',
+            'https://via.placeholder.com/80?text=NFT4',
+            'https://via.placeholder.com/80?text=NFT5'
         ];
 
-        // Функция обновления интерфейса
+        // Функция показа сообщения
+        function showMessage(text, type = 'info') {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = text;
+            messageContainer.appendChild(messageEl);
+            setTimeout(() => messageEl.remove(), 3000); // Удаляем через 3 сек
+        }
+
+        // Функция переключения вкладок
+        function showSection(sectionId) {
+            slotsSection.classList.remove('active');
+            crashSection.classList.remove('active');
+            profileSection.classList.remove('active');
+            if (sectionId === 'slots') slotsSection.classList.add('active');
+            if (sectionId === 'crash') crashSection.classList.add('active');
+            if (sectionId === 'profile') profileSection.classList.add('active');
+
+            // Обновляем активную вкладку в footer
+            tabSlots.classList.remove('active');
+            tabCrash.classList.remove('active');
+            tabProfile.classList.remove('active');
+            if (sectionId === 'slots') tabSlots.classList.add('active');
+            if (sectionId === 'crash') tabCrash.classList.add('active');
+            if (sectionId === 'profile') tabProfile.classList.add('active');
+        }
+
+        // Функция получения данных пользователя от бота
+        async function fetchUserData() {
+            try {
+                // В реальном приложении: отправка запроса к боту
+                // Например: fetch('/api/user?user_id=' + tg.initDataUnsafe.user.id)
+                // Пока что используем фиктивные данные
+                userData = {
+                    id: tg.initDataUnsafe.user.id,
+                    username: tg.initDataUnsafe.user.username || 'User',
+                    first_name: tg.initDataUnsafe.user.first_name || 'User',
+                    last_name: tg.initDataUnsafe.user.last_name || '',
+                    avatar_url: 'https://via.placeholder.com/60?text=👤',
+                    balance: 0,
+                    nfts: [],
+                    stats: {
+                        total_bets: 0,
+                        total_withdraws: 0,
+                        total_nfts: 0,
+                        win_rate: 0
+                    }
+                };
+
+                // Обновляем интерфейс
+                updateUI();
+            } catch (e) {
+                showMessage('Ошибка загрузки данных', 'error');
+            }
+        }
+
+        // Функция обновления UI
         function updateUI() {
-            balanceDisplay.textContent = balance;
-            playersList.innerHTML = '';
-            players.forEach(player => {
-                const item = document.createElement('div');
-                item.className = 'player-item';
-                item.innerHTML = `<span>${player.name} — ${player.nft}</span> <span>${player.coef}</span>`;
-                playersList.appendChild(item);
-            });
+            userBalance = userData.balance;
+            userNFTs = userData.nfts;
+            userStats = userData.stats;
+
+            balanceValue.textContent = userBalance;
+            profileName.textContent = userData.first_name + ' ' + userData.last_name;
+            profileAvatar.style.backgroundImage = `url(${userData.avatar_url})`;
+            profileRating.textContent = `Рейтинг: ${userStats.win_rate}%`;
+            totalBets.textContent = userStats.total_bets;
+            totalWithdraws.textContent = userStats.total_withdraws;
+            totalNFTs.textContent = userStats.total_nfts;
+            winRate.textContent = `${userStats.win_rate}%`;
+
+            // Обновляем сетку NFT
+            nftGrid.innerHTML = '';
+            if (userNFTs.length === 0) {
+                const noNFT = document.createElement('div');
+                noNFT.className = 'nft-card';
+                noNFT.innerHTML = '<div class="nft-image">No NFT</div><div class="nft-name">Пусто</div>';
+                nftGrid.appendChild(noNFT);
+            } else {
+                userNFTs.forEach(nft => {
+                    const card = document.createElement('div');
+                    card.className = 'nft-card';
+                    card.innerHTML = `
+                        <div class="nft-image"><img src="${nft.image}" alt="${nft.name}" style="width:100%;height:100%;object-fit:cover;"></div>
+                        <div class="nft-name">${nft.name}</div>
+                        <div class="nft-collection">${nft.collection}</div>
+                    `;
+                    nftGrid.appendChild(card);
+                });
+            }
         }
 
-        // Функция получения баланса (псевдо-реализация)
-        function fetchBalance() {
-            // В реальном приложении: запрос к боту через API
-            // Например: fetch('/api/balance?user_id=' + tg.initDataUnsafe.user.id)
-            // и обновление переменной balance
-            // Пока что просто обновим с фиктивным значением или из localStorage
-            balance = parseInt(localStorage.getItem('balance')) || 0;
-            updateUI();
-        }
-
-        // Функция пополнения (открывает инструкцию или ссылку)
-        function deposit() {
-            // tg.openInvoice не поддерживает XPay напрямую
-            // Лучший способ - отправить команду боту
-            tg.sendData('deposit');
-            tg.close(); // Закрываем WebApp и открывается чат с ботом
-        }
-
-        // Функция игры (отправляет команду боту)
-        function playGame() {
-            if (balance < 400) {
-                alert('Недостаточно звёзд для игры!');
+        // Функция запуска слотов
+        async function startSlots(freeMode = false) {
+            if (!freeMode && userBalance < 400) {
+                showMessage('Недостаточно звёзд!', 'error');
                 return;
             }
-            // Отправляем команду боту
-            tg.sendData('play');
-            tg.close(); // Закрываем WebApp и открывается чат с ботом
+
+            // Анимация вращения
+            slot1.classList.add('slot-spinning');
+            slot2.classList.add('slot-spinning');
+            slot3.classList.add('slot-spinning');
+
+            // Останавливаем через 2 секунды
+            setTimeout(() => {
+                slot1.classList.remove('slot-spinning');
+                slot2.classList.remove('slot-spinning');
+                slot3.classList.remove('slot-spinning');
+
+                // Выбираем случайные NFT
+                const randomNFT1 = nftIcons[Math.floor(Math.random() * nftIcons.length)];
+                const randomNFT2 = nftIcons[Math.floor(Math.random() * nftIcons.length)];
+                const randomNFT3 = nftIcons[Math.floor(Math.random() * nftIcons.length)];
+
+                slot1.querySelector('.slot-image').src = randomNFT1;
+                slot2.querySelector('.slot-image').src = randomNFT2;
+                slot3.querySelector('.slot-image').src = randomNFT3;
+
+                // Проверяем выигрыш (простая логика: если все три одинаковые - выигрыш)
+                if (randomNFT1 === randomNFT2 && randomNFT2 === randomNFT3) {
+                    showMessage('🎉 Вы выиграли!', 'success');
+                    if (!freeMode) {
+                        // В реальном приложении: отправка команды боту для начисления NFT
+                        // tg.sendData('win_nft');
+                        // И обновление баланса
+                        userData.balance += 100; // Пример
+                        userStats.total_bets++;
+                        userStats.total_nfts++;
+                        userStats.win_rate = Math.round((userStats.total_nfts / userStats.total_bets) * 100);
+                        userData.nfts.push({
+                            name: 'New NFT',
+                            collection: 'Random Collection',
+                            image: randomNFT1
+                        });
+                        updateUI();
+                    }
+                } else {
+                    showMessage('❌ Проигрыш', 'error');
+                    if (!freeMode) {
+                        userData.balance -= 400;
+                        userStats.total_bets++;
+                        userStats.win_rate = Math.round((userStats.total_nfts / userStats.total_bets) * 100);
+                        updateUI();
+                    }
+                }
+            }, 2000);
+        }
+
+        // Функция запуска Краша
+        function startCrash() {
+            if (isCrashGameActive) return;
+
+            isCrashGameActive = true;
+            crashMultiplierValue = 1.00;
+            crashMultiplier.textContent = `${crashMultiplierValue.toFixed(2)}x`;
+            crashLine.style.width = '0%';
+
+            crashInterval = setInterval(() => {
+                crashMultiplierValue += 0.01;
+                crashMultiplier.textContent = `${crashMultiplierValue.toFixed(2)}x`;
+                crashLine.style.width = `${Math.min(crashMultiplierValue * 10, 100)}%`;
+
+                // Случайно завершаем игру
+                if (Math.random() < 0.01) {
+                    endCrash();
+                }
+            }, 100);
+        }
+
+        function endCrash() {
+            clearInterval(crashInterval);
+            isCrashGameActive = false;
+            crashCashoutButton.classList.add('hidden');
+            crashBetButton.classList.remove('hidden');
+            showMessage(`💥 Краш! Множитель: ${crashMultiplierValue.toFixed(2)}x`, 'error');
         }
 
         // Обработчики событий
-        betButton.addEventListener('click', playGame);
-
         tabSlots.addEventListener('click', (e) => {
             e.preventDefault();
-            tabSlots.classList.add('active');
-            tabCrash.classList.remove('active');
-            tabProfile.classList.remove('active');
-            // Здесь можно переключить содержимое на "Слоты"
+            showSection('slots');
         });
 
         tabCrash.addEventListener('click', (e) => {
             e.preventDefault();
-            tabCrash.classList.add('active');
-            tabSlots.classList.remove('active');
-            tabProfile.classList.remove('active');
-            // Здесь можно переключить содержимое на "Краш"
+            showSection('crash');
         });
 
         tabProfile.addEventListener('click', (e) => {
             e.preventDefault();
-            tabProfile.classList.add('active');
-            tabSlots.classList.remove('active');
-            tabCrash.classList.remove('active');
-            // Здесь можно переключить содержимое на "Профиль"
+            showSection('profile');
+        });
+
+        spinButton.addEventListener('click', () => {
+            startSlots(false);
+        });
+
+        freeSpinButton.addEventListener('click', () => {
+            startSlots(true);
+        });
+
+        crashBetButton.addEventListener('click', () => {
+            startCrash();
+            crashBetButton.classList.add('hidden');
+            crashCashoutButton.classList.remove('hidden');
+        });
+
+        crashCashoutButton.addEventListener('click', () => {
+            if (isCrashGameActive) {
+                endCrash();
+                showMessage(`✅ Вы вывели ${crashMultiplierValue.toFixed(2)}x`, 'success');
+            }
         });
 
         // Инициализация
-        tg.onEvent('mainButtonClicked', fetchBalance);
-        tg.enableMainButton('Обновить баланс');
-        tg.showMainButton();
+        fetchUserData();
 
-        // Обновляем UI при загрузке
-        fetchBalance();
+        // Обновляем данные каждые 5 секунд (в реальном приложении - по событиям)
+        setInterval(fetchUserData, 5000);
 
     </script>
 </body>
