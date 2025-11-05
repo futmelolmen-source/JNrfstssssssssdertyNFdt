@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Casino</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        .graph-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #111;
+            margin: 10px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .graph {
+            width: 90%;
+            height: 80%;
+            background: #222;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .graph-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #00ff00;
+            /* Анимация линии */
+            animation: graphLine 5s infinite linear;
+        }
+        @keyframes graphLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .players-list {
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #111;
+            margin: 0 10px;
+            border-radius: 10px;
+        }
+        .player-item {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+        .bet-button {
+            display: block;
+            width: 90%;
+            padding: 15px;
+            margin: 20px auto;
+            background: #00cc66;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: #111;
+            border-top: 1px solid #333;
+        }
+        .footer-btn {
+            font-size: 24px;
+            color: #aaa;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .footer-btn.active {
+            color: #00cc66;
+        }
+        .footer-btn span {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>NFT Casino</h2>
+        <p>Баланс: <span id="balanceDisplay">0</span> звёзд</p>
+    </div>
+
+    <div class="graph-container">
+        <div class="graph">
+            <div class="graph-line"></div>
+        </div>
+    </div>
+
+    <div class="players-list" id="playersList">
+        <!-- Игроки будут добавлены динамически -->
+    </div>
+
+    <button class="bet-button" id="betButton">Сделать ставку (400 звёзд)</button>
+
+    <div class="footer">
+        <a href="#" class="footer-btn active" id="tabSlots">
+            <span>🎰</span>
+            <span>Слоты</span>
+        </a>
+        <a href="#" class="footer-btn" id="tabCrash">
+            <span>🚀</span>
+            <span>Краш</span>
+        </a>
+        <a href="#" class="footer-btn" id="tabProfile">
+            <span>👤</span>
+            <span>Профиль</span>
+        </a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+
+        // Установка цвета темы
+        document.body.style.backgroundColor = tg.backgroundColor;
+        tg.ready();
+
+        // Элементы DOM
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const playersList = document.getElementById('playersList');
+        const betButton = document.getElementById('betButton');
+        const tabSlots = document.getElementById('tabSlots');
+        const tabCrash = document.getElementById('tabCrash');
+        const tabProfile = document.getElementById('tabProfile');
+
+        // Фиктивные данные для примера
+        let balance = 0;
+        const players = [
+            { name: 'User1', nft: 'NFT #123', coef: 'x2.5' },
+            { name: 'User2', nft: 'NFT #456', coef: 'x1.8' },
+            { name: 'You', nft: 'NFT #789', coef: 'x3.0' }
+        ];
+
+        // Функция обновления интерфейса
+        function updateUI() {
+            balanceDisplay.textContent = balance;
+            playersList.innerHTML = '';
+            players.forEach(player => {
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                item.innerHTML = `<span>${player.name} — ${player.nft}</span> <span>${player.coef}</span>`;
+                playersList.appendChild(item);
+            });
+        }
+
+        // Функция получения баланса (псевдо-реализация)
+        function fetchBalance() {
+            // В реальном приложении: запрос к боту через API
+            // Например: fetch('/api/balance?user_id=' + tg.initDataUnsafe.user.id)
+            // и обновление переменной balance
+            // Пока что просто обновим с фиктивным значением или из localStorage
+            balance = parseInt(localStorage.getItem('balance')) || 0;
+            updateUI();
+        }
+
+        // Функция пополнения (открывает инструкцию или ссылку)
+        function deposit() {
+            // tg.openInvoice не поддерживает XPay напрямую
+            // Лучший способ - отправить команду боту
+            tg.sendData('deposit');
+            tg.close(); // Закрываем WebApp и открывается чат с ботом
+        }
+
+        // Функция игры (отправляет команду боту)
+        function playGame() {
+            if (balance < 400) {
+                alert('Недостаточно звёзд для игры!');
+                return;
+            }
+            // Отправляем команду боту
+            tg.sendData('play');
+            tg.close(); // Закрываем WebApp и открывается чат с ботом
+        }
+
+        // Обработчики событий
+        betButton.addEventListener('click', playGame);
+
+        tabSlots.addEventListener('click', (e) => {
+            e.preventDefault();
+            tabSlots.classList.add('active');
+            tabCrash.classList.remove('active');
+            tabProfile.classList.remove('active');
+            // Здесь можно переключить содержимое на "Слоты"
+        });
+
+        tabCrash.addEventListener('click', (e) => {
+            e.preventDefault();
+            tabCrash.classList.add('active');
+            tabSlots.classList.remove('active');
+            tabProfile.classList.remove('active');
+            // Здесь можно переключить содержимое на "Краш"
+        });
+
+        tabProfile.addEventListener('click', (e) => {
+            e.preventDefault();
+            tabProfile.classList.add('active');
+            tabSlots.classList.remove('active');
+            tabCrash.classList.remove('active');
+            // Здесь можно переключить содержимое на "Профиль"
+        });
+
+        // Инициализация
+        tg.onEvent('mainButtonClicked', fetchBalance);
+        tg.enableMainButton('Обновить баланс');
+        tg.showMainButton();
+
+        // Обновляем UI при загрузке
+        fetchBalance();
+
+    </script>
+</body>
+</html>
